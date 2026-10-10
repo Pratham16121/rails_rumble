@@ -1,0 +1,18 @@
+<div class="card">
+  <h2>Join a Quiz</h2>
+  <p style="margin-bottom: 2rem;">Want to host your own quiz? <%= link_to 'Create a quiz here', start_path, style: "color: var(--primary);" %></p>
+  
+  <%= form_with model: @quiz_participant, url: quiz_participants_path, local: true do |f| %>
+    <div class="form-group">
+      <%= f.label :join_code, "Quiz Code" %>
+      <%= f.text_field :join_code, value: @join_code, class: 'form-control', required: true, style: 'text-transform: uppercase;' %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :nickname, "Your Nickname" %>
+      <%= f.text_field :nickname, class: 'form-control', required: true, maxlength: 30 %>
+    </div>
+
+    <%= f.submit 'Join', class: 'btn btn-block' %>
+  <% end %>
+</div>

@@ -23,6 +23,19 @@
   </head>
 
   <body>
-    <%= yield %>
+    <div class="nav-bar">
+      <%= link_to "Real-Time Quiz", root_path, class: "brand" %>
+    </div>
+    
+    <div class="container">
+      <% if notice %>
+        <div class="alert alert-notice"><%= notice %></div>
+      <% end %>
+      <% if alert %>
+        <div class="alert alert-alert"><%= alert %></div>
+      <% end %>
+
+      <%= yield %>
+    </div>
   </body>
 </html>

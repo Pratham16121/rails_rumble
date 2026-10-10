@@ -1,0 +1,35 @@
+<div class="nested-fields" data-new-record="<%= f.object.new_record? %>" style="background: #0f172a; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; position: relative;">
+  <button data-action="nested-form#remove" class="btn btn-danger" style="position: absolute; top: 1rem; right: 1rem; padding: 0.25rem 0.75rem; font-size: 0.9rem;">Remove</button>
+  
+  <h4 class="question-position-label" style="margin-top: 0; margin-bottom: 1rem; color: var(--text-muted);">Question</h4>
+  
+  <%= f.hidden_field :position, class: 'question-position-input' %>
+  <%= f.hidden_field :_destroy %>
+  
+  <div class="form-group">
+    <%= f.label :question_text, "Question Text" %>
+    <%= f.text_field :question_text, class: 'form-control', required: true %>
+  </div>
+  
+  <div style="display: flex; gap: 1rem;">
+    <div class="form-group" style="flex: 1;">
+      <%= f.label :points %>
+      <%= f.number_field :points, class: 'form-control', required: true, min: 0 %>
+    </div>
+    <div class="form-group" style="flex: 1;">
+      <%= f.label :time_limit_seconds, "Time Limit (sec)" %>
+      <%= f.number_field :time_limit_seconds, class: 'form-control', required: true, min: 1 %>
+    </div>
+  </div>
+
+  <h5 style="margin-bottom: 0.5rem; color: var(--text-muted);">Options (Check exactly 1 correct option)</h5>
+  <% f.object.question_options.each_with_index do |opt, i| %>
+    <%= f.fields_for :question_options, opt do |optf| %>
+      <%= optf.hidden_field :position %>
+      <div style="display: flex; gap: 1rem; margin-bottom: 0.5rem; align-items: center;">
+        <%= optf.check_box :correct %>
+        <%= optf.text_field :option_text, class: 'form-control', placeholder: "Option #{i + 1}", required: true %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

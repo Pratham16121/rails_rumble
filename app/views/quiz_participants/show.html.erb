@@ -1,0 +1,51 @@
+<%= turbo_stream_from "quiz_session_#{@quiz_session.id}" %>
+<div id="participant-container" data-controller="reload" class="card">
+  <h2>Quiz: <%= @quiz_session.title %></h2>
+  <p>Nickname: <%= @quiz_participant.nickname %></p>
+  <p>Status: <span id="quiz-status"><%= @quiz_session.status.titleize %></span></p>
+  <p>Score: <span id="player-score"><%= @quiz_participant.total_score %></span></p>
+
+  <div id="player-view-area">
+    <% if @quiz_session.waiting? %>
+      <p>Waiting for the host to start the quiz...</p>
+    <% elsif @quiz_session.in_progress? %>
+      <% q = @quiz_session.current_question %>
+      <% if q %>
+        <h3>Question <%= q.position %></h3>
+        <p><%= q.question_text %></p>
+        
+        <div class="options-grid">
+          <% q.question_options.order(:position).each do |opt| %>
+            <%= button_to opt.option_text, submit_answer_quiz_participant_path(@quiz_participant, question_option_id: opt.id), class: 'option-btn', method: :post, style: 'width: 100%' %>
+          <% end %>
+        </div>
+      <% end %>
+    <% elsif @quiz_session.finished? %>
+      <h3>Quiz Finished!</h3>
+      <p>Your Final Score: <%= @quiz_participant.total_score %></p>
+      
+      <table class="scoreboard">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Player</th>
+            <th>Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @quiz_session.quiz_participants.order(total_score: :desc).each_with_index do |p, i| %>
+            <tr>
+              <td><%= i + 1 %></td>
+              <td><%= p.nickname %></td>
+              <td><%= p.total_score %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+  </div>
+
+  <div id="quiz-state" style="display: none;">
+    <%= @quiz_session.status %>-<%= @quiz_session.current_question_id %>-<%= Time.current.to_i %>
+  </div>
+</div>

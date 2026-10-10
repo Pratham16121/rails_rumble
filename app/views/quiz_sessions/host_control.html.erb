@@ -1,0 +1,65 @@
+<%= turbo_stream_from "quiz_session_#{@quiz_session.id}_host" %>
+<div id="host-control-container" data-controller="reload" class="card">
+  <h2>Host Control: <%= @quiz_session.title %></h2>
+  <p>Join Code: <strong><%= @quiz_session.join_code %></strong></p>
+  
+  <p>Status: <strong><%= @quiz_session.status.titleize %></strong></p>
+
+  <% if @quiz_session.waiting? %>
+    <h3>Waiting Room</h3>
+    <div id="host-waiting-room">
+      <p>Participants: <span id="participant-count"><%= @quiz_session.quiz_participants.count %></span></p>
+      <ul id="participant-list">
+        <% @quiz_session.quiz_participants.each do |p| %>
+          <li id="participant-<%= p.id %>"><%= p.nickname %></li>
+        <% end %>
+      </ul>
+    </div>
+    <%= button_to 'Start Quiz', start_quiz_session_path(@quiz_session), class: 'btn', method: :post %>
+  
+  <% elsif @quiz_session.in_progress? %>
+    <h3>Current Question: <%= @quiz_session.current_question.position %> / <%= @quiz_session.quiz_questions.count %></h3>
+    <p><%= @quiz_session.current_question.question_text %></p>
+    
+    <% if @quiz_session.current_question.question_options.any? %>
+      <ul style="list-style-type: none; padding: 0;">
+        <% @quiz_session.current_question.question_options.order(:position).each do |opt| %>
+          <li style="padding: 0.5rem; background: <%= opt.correct ? 'var(--accent)' : '#334155' %>; margin-bottom: 0.5rem; border-radius: 4px;">
+            <%= opt.option_text %> <%= "(Correct)" if opt.correct %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+
+    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+      <%= button_to 'Reveal Answer', reveal_answer_quiz_session_path(@quiz_session), class: 'btn', style: 'background: #0284c7;', method: :post %>
+      <%= button_to 'Next Question', advance_question_quiz_session_path(@quiz_session), class: 'btn', method: :post %>
+      <%= button_to 'Finish Quiz', finish_quiz_session_path(@quiz_session), class: 'btn btn-danger', method: :post %>
+    </div>
+    
+  <% elsif @quiz_session.finished? %>
+    <h3>Final Results</h3>
+    <table class="scoreboard">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Player</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @quiz_session.quiz_participants.order(total_score: :desc).each_with_index do |p, i| %>
+          <tr>
+            <td><%= i + 1 %></td>
+            <td><%= p.nickname %></td>
+            <td><%= p.total_score %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+
+  <div id="quiz-state-host" style="display: none;">
+    <%= @quiz_session.status %>-<%= @quiz_session.current_question_id %>-<%= Time.current.to_i %>
+  </div>
+</div>

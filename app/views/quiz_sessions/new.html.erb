@@ -1,0 +1,45 @@
+<div class="card">
+  <h2>Host a New Quiz</h2>
+  <p style="margin-bottom: 2rem;">Looking to play instead? <%= link_to 'Join a quiz here', join_path, style: "color: var(--primary);" %></p>
+  
+  <%= form_with model: @quiz_session, local: true do |f| %>
+    <% if @quiz_session.errors.any? %>
+      <div class="alert alert-error">
+        <ul>
+          <% @quiz_session.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="form-group">
+      <%= f.label :title %>
+      <%= f.text_field :title, class: 'form-control', required: true %>
+    </div>
+
+    <div data-controller="nested-form">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 style="margin: 0;">Questions</h3>
+        <button data-action="nested-form#add" class="btn" style="background: #334155; padding: 0.5rem 1rem;">+ Add Question</button>
+      </div>
+      
+      <div data-nested-form-target="target">
+        <%= f.fields_for :quiz_questions do |qf| %>
+          <%= render 'question_fields', f: qf %>
+        <% end %>
+      </div>
+
+      <template data-nested-form-target="template">
+        <%= f.fields_for :quiz_questions, QuizQuestion.new, child_index: 'NEW_RECORD' do |qf| %>
+          <% qf.object.points = 10 %>
+          <% qf.object.time_limit_seconds = 30 %>
+          <% 4.times { |i| qf.object.question_options.build(position: i + 1) } %>
+          <%= render 'question_fields', f: qf %>
+        <% end %>
+      </template>
+    </div>
+
+    <%= f.submit 'Create Quiz', class: 'btn btn-block' %>
+  <% end %>
+</div>
