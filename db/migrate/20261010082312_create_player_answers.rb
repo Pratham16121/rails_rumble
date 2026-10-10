@@ -10,6 +10,6 @@ class CreatePlayerAnswers < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    add_index :player_answers, [:quiz_participant_id, :quiz_question_id], unique: true
+    add_index :player_answers, [ :quiz_participant_id, :quiz_question_id ], unique: true
   end
 end

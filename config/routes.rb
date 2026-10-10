@@ -1,12 +1,13 @@
 Rails.application.routes.draw do
-  root 'home#index'
+  root "home#index"
 
-  get '/start', to: 'quiz_sessions#new'
-  get '/join', to: 'quiz_participants#new'
+  get "/start", to: "quiz_sessions#new"
+  get "/join", to: "quiz_participants#new"
 
-  resources :quiz_sessions, only: [:new, :create, :show] do
+  resources :quiz_sessions, only: [ :new, :create ] do
     member do
       get :host_control
+      get :state
       post :start
       post :advance_question
       post :reveal_answer
@@ -14,9 +15,10 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :quiz_participants, only: [:new, :create, :show] do
+  resources :quiz_participants, only: [ :new, :create, :show ] do
     member do
       post :submit_answer
+      get :state
     end
   end
 

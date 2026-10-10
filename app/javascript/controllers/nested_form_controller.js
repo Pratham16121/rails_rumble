@@ -11,31 +11,39 @@ export default class extends Controller {
     e.preventDefault()
     // Use a unique ID based on timestamp
     const uniqueId = new Date().getTime()
-    
-    // Calculate the next position number (1-indexed based on current number of visible questions)
-    // Wait, the backend validates position: uniqueness { scope: :quiz_session_id }.
-    // If they all submit with position = uniqueId, that's fine but position is meant to be 1, 2, 3...
-    // Let's just calculate position sequentially for display, but for the DB, position needs to be unique.
-    
+
     let content = this.templateTarget.innerHTML.replace(/NEW_RECORD/g, uniqueId)
     this.targetTarget.insertAdjacentHTML('beforeend', content)
-    
+
     this.updatePositions()
   }
 
   remove(e) {
     e.preventDefault()
     const wrapper = e.target.closest('.nested-fields')
-    if (wrapper.dataset.newRecord === 'true') {
-      wrapper.remove()
-    } else {
-      wrapper.style.display = 'none'
-      const destroyInput = wrapper.querySelector("input[name*='_destroy']")
-      if (destroyInput) destroyInput.value = '1'
+    let removed = false
+    const finish = () => {
+      if (removed) return
+      removed = true
+      if (wrapper.dataset.newRecord === 'true') {
+        wrapper.remove()
+      } else {
+        wrapper.style.display = 'none'
+        // Hidden fields can't be filled in, so they mustn't block submission
+        wrapper.querySelectorAll('[required]').forEach((input) => input.required = false)
+        const destroyInput = wrapper.querySelector("input[name*='_destroy']")
+        if (destroyInput) destroyInput.value = '1'
+      }
+      this.updatePositions()
     }
-    this.updatePositions()
+
+    // Let the exit animation play first; the timeout covers browsers that skip it
+    wrapper.classList.add('removing')
+    wrapper.addEventListener('animationend', (event) => { if (event.target === wrapper) finish() })
+    setTimeout(finish, 500)
   }
 
+  // Positions are numbered 1, 2, 3… in display order, skipping removed questions
   updatePositions() {
     let currentPosition = 1
     this.targetTarget.querySelectorAll('.nested-fields').forEach((field) => {

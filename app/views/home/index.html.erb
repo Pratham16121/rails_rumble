@@ -1,9 +1,44 @@
-<div class="card" style="text-align: center; padding: 4rem 2rem;">
-  <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; color: var(--primary);">Real-Time Quiz</h1>
-  <p style="font-size: 1.2rem; color: var(--text-muted); margin-bottom: 2rem;">Host a quiz or join an existing one.</p>
-  
-  <div style="display: flex; gap: 1rem; justify-content: center;">
-    <%= link_to 'Host a Quiz', start_path, class: 'btn', style: 'font-size: 1.2rem; padding: 1rem 2rem;' %>
-    <%= link_to 'Join a Quiz', join_path, class: 'btn', style: 'background: #334155; font-size: 1.2rem; padding: 1rem 2rem;' %>
+<section class="hero">
+  <div class="hero-shapes" aria-hidden="true">
+    <span class="hero-shape shape-1">▲</span>
+    <span class="hero-shape shape-2">◆</span>
+    <span class="hero-shape shape-3">●</span>
+    <span class="hero-shape shape-4">■</span>
   </div>
-</div>
+
+  <h1 class="hero-title" aria-label="Real-Time Quiz">
+    <% letters = 0 %>
+    <% "Real-Time Quiz".split(" ").each do |word| %>
+      <span class="hero-word" aria-hidden="true"><% word.each_char do |char| %><span class="bounce-letter" style="--i: <%= letters %>"><%= char %></span><% letters += 1 %><% end %></span>
+    <% end %>
+  </h1>
+  <svg class="scribble-underline" viewBox="0 0 300 24" preserveAspectRatio="none" aria-hidden="true">
+    <path pathLength="100" d="M6 16C60 6 120 4 170 9s90 8 124-2"/>
+  </svg>
+
+  <p class="lead">Run a quiz on the big screen. Everyone plays along on their phone.</p>
+
+  <div class="hero-actions">
+    <%= link_to "Host a quiz", start_path, class: "btn btn-lg" %>
+    <%= link_to "Join a quiz", join_path, class: "btn btn-lg btn-secondary" %>
+  </div>
+  <p class="scribble hero-note">no sign-up, no app download!</p>
+</section>
+
+<section class="steps">
+  <div class="step">
+    <span class="step-badge shape-bg-1">1</span>
+    <h3>Write it</h3>
+    <p class="muted">A few questions, four answers each, and a ticking clock.</p>
+  </div>
+  <div class="step">
+    <span class="step-badge shape-bg-2">2</span>
+    <h3>Share the code</h3>
+    <p class="muted">Friends join from their phones in seconds.</p>
+  </div>
+  <div class="step">
+    <span class="step-badge shape-bg-3">3</span>
+    <h3>Play live</h3>
+    <p class="muted">Fastest fingers score the most. Cheer the reveal, top the leaderboard.</p>
+  </div>
+</section>

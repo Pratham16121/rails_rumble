@@ -1,0 +1,22 @@
+<%# Top three, laid out 2nd · 1st · 3rd like a real podium %>
+<div class="podium">
+  <% if entries.any? %>
+    <p class="drumroll" aria-hidden="true">🥁 and the winner is…</p>
+  <% end %>
+  <% [ 1, 0, 2 ].each do |place| %>
+    <% next unless (entry = entries[place]) %>
+    <% rank, participant = entry %>
+    <%# place-N orders the entrance animation; rank-N sizes and colors the block, so tied players match %>
+    <div class="podium-place place-<%= place + 1 %> rank-<%= [ rank, 3 ].min %>">
+      <div class="podium-player">
+        <% if rank == 1 %>
+          <svg class="crown" viewBox="0 0 60 40" aria-hidden="true"><path d="M6 34L10 8l12 14 8-18 8 18 12-14 4 26z"/></svg>
+        <% end %>
+        <%= avatar_for(participant, size: rank == 1 ? 72 : 56) %>
+        <span class="podium-name"><%= participant.nickname %></span>
+        <span class="podium-score"><%= pluralize(participant.total_score, "pt") %></span>
+      </div>
+      <div class="podium-block"><span><%= rank %></span></div>
+    </div>
+  <% end %>
+</div>

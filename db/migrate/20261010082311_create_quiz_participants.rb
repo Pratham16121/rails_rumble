@@ -11,6 +11,6 @@ class CreateQuizParticipants < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    add_index :quiz_participants, [:quiz_session_id, :joined_at]
+    add_index :quiz_participants, [ :quiz_session_id, :joined_at ]
   end
 end

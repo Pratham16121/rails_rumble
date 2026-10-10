@@ -1,0 +1,70 @@
+# A ready-made quiz hosts can load into the builder from /start.
+# Each question needs exactly four answers, and `correct` must match one of them.
+# `points` (the most a correct answer can score; faster answers score more) defaults to 1000,
+# and `time_limit` (seconds) to 20.
+title: Rails for Beginners
+emoji: 🚂
+
+questions:
+  - question: What's the name of the application server that ships with Rails?
+    answers: [Cheetah, Puma, Lion, Tiger]
+    correct: Puma
+
+  - question: Who created Ruby on Rails?
+    answers: ['Yukihiro "Matz" Matsumoto', Linus Torvalds, David Heinemeier Hansson, Thomas the Tank Engine]
+    correct: David Heinemeier Hansson
+
+  - question: In Rails, what does MVC stand for?
+    answers: [Model View Controller, Most Valuable Coder, Make Views Cute, Monkeys Very Confused]
+    correct: Model View Controller
+
+  - question: 'Rails loves "Convention over…" what?'
+    answers: [Coffee, Chaos, Copy-paste, Configuration]
+    correct: Configuration
+
+  - question: What does the DRY principle stand for?
+    answers: [Do Read YAML, "Don't Repeat Yourself", Deploy Right Yesterday, "Dance, Run, Yodel"]
+    correct: "Don't Repeat Yourself"
+
+  - question: What do Rubyists call the libraries they install?
+    answers: [Rocks, Crystals, Pebbles, Gems]
+    correct: Gems
+
+  - question: Which command creates a brand-new Rails app called "blog"?
+    answers: [rails new blog, rails please blog, rails make-it-so blog, npm install blog]
+    correct: rails new blog
+
+  - question: Which file decides what happens when someone visits /about?
+    answers: [app/maps.rb, public/compass.txt, config/routes.rb, the_internet.yml]
+    correct: config/routes.rb
+
+  - question: You change your database's structure with a…
+    answers: [Migration, Mutation, Teleportation, Hibernation]
+    correct: Migration
+
+  - question: Your model is called Person. What's its database table called?
+    answers: [persons, humans, people, person_table]
+    correct: people
+    points: 2000
+
+  - question: Which part of Rails turns database rows into Ruby objects?
+    answers: [Action Cable, Active Support, The Database Whisperer, Active Record]
+    correct: Active Record
+
+  - question: What does ERB let you do in a view?
+    answers: [Eat Ruby Burgers, Embed Ruby in HTML, Email Rails Bugs, Encrypt Really Big files]
+    correct: Embed Ruby in HTML
+
+  - question: "Rails' way of building snappy pages with barely any JavaScript is called…"
+    answers: [Coldwire, Barbed Wire, Wi-Fi, Hotwire]
+    correct: Hotwire
+
+  - question: In Rails 8, which built-in tool runs your background jobs?
+    answers: [Liquid Queue, Gas Queue, Solid Queue, Rocky Queue]
+    correct: Solid Queue
+    points: 2000
+
+  - question: Which tool ships with Rails 8 to deploy your app to a server?
+    answers: [Kamal, Camel, Kraken, Karaoke]
+    correct: Kamal
+    points: 2000

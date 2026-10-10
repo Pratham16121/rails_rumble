@@ -61,6 +61,9 @@ Rails.application.configure do
   # Annotate rendered view with file names.
   config.action_view.annotate_rendered_view_with_filenames = true
 
+  # Let ngrok tunnels reach the dev server, so players can join from their phones.
+  config.hosts.concat %w[ .ngrok-free.app .ngrok-free.dev .ngrok.app .ngrok.dev .ngrok.io ]
+
   # Uncomment if you wish to allow Action Cable access from any origin.
   # config.action_cable.disable_request_forgery_protection = true
 

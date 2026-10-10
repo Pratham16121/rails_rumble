@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_10_092413) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_10_123101) do
   create_table "player_answers", force: :cascade do |t|
     t.integer "quiz_participant_id", null: false
     t.integer "quiz_question_id", null: false
@@ -20,6 +20,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_10_092413) do
     t.datetime "answered_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "response_time_ms"
+    t.integer "streak", default: 0, null: false
     t.index ["question_option_id"], name: "index_player_answers_on_question_option_id"
     t.index ["quiz_participant_id", "quiz_question_id"], name: "idx_on_quiz_participant_id_quiz_question_id_7d097045a7", unique: true
     t.index ["quiz_participant_id"], name: "index_player_answers_on_quiz_participant_id"
@@ -44,7 +46,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_10_092413) do
     t.integer "status", default: 0, null: false
     t.integer "total_score", default: 0, null: false
     t.datetime "joined_at", null: false
-    t.datetime "last_seen_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["quiz_session_id", "joined_at"], name: "index_quiz_participants_on_quiz_session_id_and_joined_at"
@@ -73,7 +74,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_10_092413) do
     t.integer "current_question_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "answer_revealed"
+    t.boolean "answer_revealed", default: false, null: false
+    t.datetime "question_started_at"
     t.index ["join_code"], name: "index_quiz_sessions_on_join_code", unique: true
   end
 

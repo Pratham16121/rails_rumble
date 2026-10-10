@@ -8,6 +8,6 @@ class CreateQuestionOptions < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    add_index :question_options, [:quiz_question_id, :position]
+    add_index :question_options, [ :quiz_question_id, :position ]
   end
 end

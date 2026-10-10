@@ -1,39 +1,32 @@
 class SubmitAnswer
-  def self.call(quiz_participant:, player_token:, question_option_id:)
-    return { error: 'Unauthorized' } unless Digest::SHA256.hexdigest(player_token) == quiz_participant.session_token_digest
-    
+  def self.call(quiz_participant:, question_option_id:)
     session = quiz_participant.quiz_session
-    return { error: 'Quiz not in progress' } unless session.in_progress?
-    
     question = session.current_question
-    return { error: 'No active question' } unless question
-    
+    return { error: "Answers are closed for this question" } unless question && session.accepting_answers?
+
     option = question.question_options.find_by(id: question_option_id)
-    return { error: 'Invalid option' } unless option
+    return { error: "Invalid option" } unless option
 
-    result = nil
+    answered_at = Time.current
+    response_time = answered_at - session.question_started_at
+    streak = option.correct ? quiz_participant.streak_before(question) + 1 : 0
+    points = option.correct ? question.points_for(response_time) + PlayerAnswer.streak_bonus(streak) : 0
+
     PlayerAnswer.transaction do
-      if PlayerAnswer.exists?(quiz_participant_id: quiz_participant.id, quiz_question_id: question.id)
-        result = { error: 'Already answered' }
-        raise ActiveRecord::Rollback
-      end
-
-      answer = PlayerAnswer.create!(
-        quiz_participant: quiz_participant,
+      quiz_participant.player_answers.create!(
         quiz_question: question,
         question_option: option,
         correct: option.correct,
-        points_awarded: option.correct ? question.points : 0,
-        answered_at: Time.current
+        points_awarded: points,
+        answered_at: answered_at,
+        response_time_ms: [ (response_time * 1000).round, 0 ].max,
+        streak: streak
       )
-
-      if option.correct
-        quiz_participant.increment!(:total_score, question.points)
-      end
-      
-      result = { success: true }
+      quiz_participant.increment!(:total_score, points) if points.positive?
     end
 
-    result
+    { success: true }
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique
+    { error: "You've already answered this question" }
   end
 end

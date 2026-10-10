@@ -1,0 +1,15 @@
+<% answers = quiz_session.current_question.player_answers.includes(:quiz_participant).order(:answered_at).to_a %>
+<div id="answer_count" class="answer-count" data-sync-key="<%= answers.size %>">
+  <p class="answer-tally"><span class="bump"><strong><%= answers.size %></strong> of <%= pluralize(quiz_session.quiz_participants.size, "player") %> answered</span></p>
+  <% if answers.any? %>
+    <%# In the order they locked in, without giving away who's right %>
+    <ul class="locked-in" aria-label="Players who've answered">
+      <% answers.each do |answer| %>
+        <li class="<%= class_names("is-new": answer.quiz_participant == local_assigns[:new_participant]) %>">
+          <%= avatar_for(answer.quiz_participant, size: 40) %>
+          <span><%= answer.quiz_participant.nickname %></span>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

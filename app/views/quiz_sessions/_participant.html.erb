@@ -1,1 +1,4 @@
-<li id="participant-<%= participant.id %>"><%= participant.nickname %></li>
+<li class="<%= class_names("chip", "is-new": participant == local_assigns[:new_participant]) %>">
+  <%= avatar_for(participant, size: 32) %>
+  <span><%= participant.nickname %></span>
+</li>

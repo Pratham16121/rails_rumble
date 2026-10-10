@@ -9,6 +9,6 @@ class CreateQuizQuestions < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    add_index :quiz_questions, [:quiz_session_id, :position]
+    add_index :quiz_questions, [ :quiz_session_id, :position ]
   end
 end

@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Rails Rumble" %></title>
+    <title><%= content_for(:title) || "Real-Time Quiz" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#150d2e">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
@@ -17,17 +18,31 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body>
-    <div class="nav-bar">
-      <%= link_to "Real-Time Quiz", root_path, class: "brand" %>
-    </div>
-    
-    <div class="container">
+    <%= render "layouts/doodles" %>
+
+    <nav class="nav-bar">
+      <%= link_to root_path, class: "brand" do %>
+        <svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <path class="shape-1" d="M8 2l6.5 11.5h-13z"/>
+          <path class="shape-2" d="M24 1.5l6.5 6.5-6.5 6.5-6.5-6.5z"/>
+          <circle class="shape-3" cx="8" cy="24" r="6"/>
+          <rect class="shape-4" x="18" y="18" width="12" height="12" rx="2.5"/>
+        </svg>
+        Real-Time Quiz
+      <% end %>
+    </nav>
+
+    <main class="container">
       <% if notice %>
         <div class="alert alert-notice"><%= notice %></div>
       <% end %>
@@ -36,6 +51,6 @@
       <% end %>
 
       <%= yield %>
-    </div>
+    </main>
   </body>
 </html>

@@ -1,0 +1,12 @@
+<% if entries.any? %>
+  <ol class="leaderboard">
+    <% entries.each_with_index do |(rank, participant), i| %>
+      <li class="<%= class_names(you: participant == local_assigns[:highlight]) %>" style="--i: <%= i %>">
+        <span class="rank"><%= rank %></span>
+        <%= avatar_for(participant, size: 32) %>
+        <span class="name"><%= participant.nickname %></span>
+        <span class="score"><%= participant.total_score %></span>
+      </li>
+    <% end %>
+  </ol>
+<% end %>

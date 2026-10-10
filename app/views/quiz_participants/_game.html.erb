@@ -1,0 +1,113 @@
+<% quiz_session = participant.quiz_session %>
+<% question = quiz_session.current_question if quiz_session.in_progress? %>
+<% answer = participant.current_answer if question %>
+<% revealed = question && quiz_session.answer_revealed? %>
+<div id="player_game" data-sync-key="<%= quiz_session.player_sync_key %>">
+  <div class="player-bar">
+    <span class="player-identity"><%= avatar_for(participant, size: 36) %><span class="player-name"><%= participant.nickname %></span></span>
+    <span class="<%= class_names("player-score", bump: revealed && answer&.correct?) %>"><%= pluralize(participant.visible_score, "pt") %></span>
+  </div>
+
+  <% if quiz_session.waiting? %>
+    <div class="lobby-player">
+      <%= avatar_for(participant, size: 112) %>
+      <h2>You're in!</h2>
+      <p class="muted">Waiting for the host to start <strong><%= quiz_session.title %></strong></p>
+      <%= render "shared/shape_loader" %>
+      <p class="scribble">eyes on the big screen 👀</p>
+    </div>
+
+  <% elsif question %>
+    <% accepting = !answer && !revealed && quiz_session.accepting_answers? %>
+    <%= tag.div data: (accepting ? { controller: "countdown", countdown_seconds_value: quiz_session.seconds_remaining,
+                                    countdown_total_value: question.time_limit_seconds } : {}) do %>
+      <% if question.final? && !revealed %>
+        <div class="final-banner">🔥 Final question · double points!</div>
+      <% end %>
+      <div class="question-meta">
+        <span class="question-number">Question <%= question.position %> <span class="muted">of <%= quiz_session.quiz_questions.size %></span></span>
+        <% if accepting %>
+          <div class="countdown countdown-sm"><%= render "quiz_sessions/countdown_ring", seconds: quiz_session.seconds_remaining %></div>
+        <% end %>
+      </div>
+      <h2 class="<%= class_names("question-text", "slide-in": accepting) %>"><%= question.question_text %></h2>
+
+      <% if revealed %>
+        <% if answer&.correct? %>
+          <div class="result result-correct" data-controller="confetti">
+            <svg class="result-doodle" viewBox="0 0 60 60" aria-hidden="true"><path pathLength="100" d="M12 32l12 12 26-28"/></svg>
+            <h3>Correct! +<%= pluralize(answer.points_awarded, "point") %></h3>
+            <span class="points-pop" aria-hidden="true">+<%= answer.points_awarded %></span>
+            <% if answer == question.fastest_correct_answer %>
+              <p class="fastest-badge">⚡ Fastest finger!</p>
+            <% end %>
+            <% if answer.streak >= 3 %>
+              <p class="streak-badge">🔥 <%= answer.streak %> in a row! +<%= answer.streak_bonus %> streak bonus</p>
+            <% end %>
+            <p>The answer was <strong><%= question.correct_option.option_text %></strong></p>
+            <% if (time = response_time(answer)) %>
+              <p class="answer-speed">You answered in <%= time %></p>
+            <% end %>
+          </div>
+        <% elsif answer %>
+          <div class="result result-wrong">
+            <svg class="result-doodle" viewBox="0 0 60 60" aria-hidden="true"><path pathLength="100" d="M16 16l28 28M44 16L16 44"/></svg>
+            <h3>Not quite</h3>
+            <p>The answer was <strong><%= question.correct_option.option_text %></strong></p>
+          </div>
+        <% else %>
+          <div class="result result-missed">
+            <svg class="result-doodle" viewBox="0 0 60 60" aria-hidden="true"><circle pathLength="100" cx="30" cy="32" r="20"/><path pathLength="100" d="M30 20v12l8 6"/></svg>
+            <h3>No answer this time</h3>
+            <p>The answer was <strong><%= question.correct_option.option_text %></strong></p>
+          </div>
+        <% end %>
+
+      <% elsif answer %>
+        <div class="status-panel pop-in">
+          <p class="picked">You picked <strong class="picked-option option-<%= answer.question_option.position %>"><%= answer.question_option.option_text %></strong></p>
+          <% if (time = response_time(answer)) %>
+            <p class="answer-speed">⚡ locked in after <%= time %></p>
+          <% end %>
+          <%= render "shared/shape_loader" %>
+          <p class="muted">Waiting for the host to reveal the answer…</p>
+        </div>
+
+      <% elsif accepting %>
+        <div class="options-grid" data-countdown-target="open">
+          <% question.question_options.each_with_index do |option, i| %>
+            <%= button_to option.option_text, submit_answer_quiz_participant_path(participant),
+                  params: { question_option_id: option.id }, class: "option option-#{option.position} pop-in",
+                  style: "--i: #{i}" %>
+          <% end %>
+        </div>
+        <div class="status-panel times-up" data-countdown-target="closed" hidden>
+          <%= render "quiz_participants/times_up" %>
+        </div>
+
+      <% else %>
+        <div class="status-panel times-up">
+          <%= render "quiz_participants/times_up" %>
+        </div>
+      <% end %>
+    <% end %>
+
+  <% elsif quiz_session.finished? %>
+    <% leaderboard = quiz_session.leaderboard %>
+    <% rank = leaderboard.find { |_, p| p == participant }&.first %>
+    <%# Your rank waits for the big screen's podium and drumroll, so phones don't spoil it %>
+    <div class="final" data-controller="confetti" data-confetti-delay-value="5000">
+      <p class="eyebrow">Quiz finished!</p>
+      <div class="final-stage">
+        <p class="final-wait scribble">🥁 eyes on the big screen…</p>
+        <div class="final-reveal">
+          <h2 class="final-rank">You placed <span><%= rank&.ordinalize %></span></h2>
+          <p>Your final score: <strong><%= pluralize(participant.total_score, "point") %></strong></p>
+        </div>
+      </div>
+    </div>
+    <div class="final-leaderboard">
+      <%= render "quiz_sessions/leaderboard", entries: leaderboard, highlight: participant %>
+    </div>
+  <% end %>
+</div>

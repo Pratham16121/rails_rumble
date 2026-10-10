@@ -1,18 +1,26 @@
-<div class="card">
-  <h2>Join a Quiz</h2>
-  <p style="margin-bottom: 2rem;">Want to host your own quiz? <%= link_to 'Create a quiz here', start_path, style: "color: var(--primary);" %></p>
-  
-  <%= form_with model: @quiz_participant, url: quiz_participants_path, local: true do |f| %>
+<% content_for :title, "Join a quiz" %>
+
+<div class="card narrow card-enter">
+  <h2>Join a quiz</h2>
+  <p class="muted">Want to run your own? <%= link_to "Host a quiz", start_path %></p>
+
+  <%= form_with scope: :quiz_participant, url: quiz_participants_path do |f| %>
     <div class="form-group">
-      <%= f.label :join_code, "Quiz Code" %>
-      <%= f.text_field :join_code, value: @join_code, class: 'form-control', required: true, style: 'text-transform: uppercase;' %>
+      <div class="label-row">
+        <%= f.label :join_code, "Quiz code" %>
+        <span class="scribble">it's on the big screen!</span>
+      </div>
+      <%= f.text_field :join_code, value: @join_code, class: "form-control join-code-input", required: true,
+            maxlength: CreateQuizSession::JOIN_CODE_LENGTH, autocomplete: "off", autocapitalize: "characters",
+            spellcheck: false, autofocus: @join_code.blank?, placeholder: "ABC234" %>
     </div>
 
     <div class="form-group">
-      <%= f.label :nickname, "Your Nickname" %>
-      <%= f.text_field :nickname, class: 'form-control', required: true, maxlength: 30 %>
+      <%= f.label :nickname, "Your nickname" %>
+      <%= f.text_field :nickname, value: @nickname, class: "form-control", required: true, maxlength: 30,
+            autocomplete: "nickname", autofocus: @join_code.present?, placeholder: "Something fun" %>
     </div>
 
-    <%= f.submit 'Join', class: 'btn btn-block' %>
+    <%= f.submit "Let's go!", class: "btn btn-block btn-lg" %>
   <% end %>
 </div>

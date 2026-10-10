@@ -1,8 +1,26 @@
-<div class="card">
-  <h2>Host a New Quiz</h2>
-  <p style="margin-bottom: 2rem;">Looking to play instead? <%= link_to 'Join a quiz here', join_path, style: "color: var(--primary);" %></p>
-  
-  <%= form_with model: @quiz_session, local: true do |f| %>
+<% content_for :title, "Host a quiz" %>
+
+<div class="card card-enter">
+  <h2>Host a new quiz</h2>
+  <p class="scribble builder-note">keep it short &amp; silly!</p>
+  <p class="muted">Looking to play instead? <%= link_to "Join a quiz", join_path %></p>
+
+  <% if @templates.any? %>
+    <div class="template-picker">
+      <p class="scribble">in a hurry? load a ready-made quiz:</p>
+      <div class="template-list">
+        <% @templates.each do |template| %>
+          <%= link_to start_path(template: template.key), class: class_names("template-chip", active: template.key == @template&.key) do %>
+            <span class="template-emoji" aria-hidden="true"><%= template.emoji %></span>
+            <span><%= template.title %></span>
+            <span class="template-count"><%= pluralize(template.questions.size, "question") %></span>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%= form_with model: @quiz_session do |f| %>
     <% if @quiz_session.errors.any? %>
       <div class="alert alert-error">
         <ul>
@@ -15,31 +33,29 @@
 
     <div class="form-group">
       <%= f.label :title %>
-      <%= f.text_field :title, class: 'form-control', required: true %>
+      <%= f.text_field :title, class: "form-control", required: true, maxlength: 100, placeholder: "Friday trivia" %>
     </div>
 
     <div data-controller="nested-form">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h3 style="margin: 0;">Questions</h3>
-        <button data-action="nested-form#add" class="btn" style="background: #334155; padding: 0.5rem 1rem;">+ Add Question</button>
-      </div>
-      
+      <h3>Questions</h3>
+      <p class="scribble builder-tip">psst: the last question is worth double 🔥</p>
+
       <div data-nested-form-target="target">
         <%= f.fields_for :quiz_questions do |qf| %>
-          <%= render 'question_fields', f: qf %>
+          <%= render "question_fields", f: qf %>
         <% end %>
       </div>
 
       <template data-nested-form-target="template">
-        <%= f.fields_for :quiz_questions, QuizQuestion.new, child_index: 'NEW_RECORD' do |qf| %>
-          <% qf.object.points = 10 %>
-          <% qf.object.time_limit_seconds = 30 %>
+        <%= f.fields_for :quiz_questions, QuizQuestion.new(points: 1000, time_limit_seconds: 30), child_index: "NEW_RECORD" do |qf| %>
           <% 4.times { |i| qf.object.question_options.build(position: i + 1) } %>
-          <%= render 'question_fields', f: qf %>
+          <%= render "question_fields", f: qf %>
         <% end %>
       </template>
+
+      <button type="button" class="btn btn-ghost btn-block add-question" data-action="nested-form#add">+ Add question</button>
     </div>
 
-    <%= f.submit 'Create Quiz', class: 'btn btn-block' %>
+    <%= f.submit "Create quiz", class: "btn btn-block btn-lg" %>
   <% end %>
 </div>

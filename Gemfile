@@ -62,3 +62,5 @@ group :test do
   gem "selenium-webdriver"
 end
 gem "json", "< 3.0.0"
+
+gem "rqrcode", "~> 3.2"

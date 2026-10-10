@@ -1,0 +1,117 @@
+<div id="host_game" class="card" data-status="<%= quiz_session.status %>" data-sync-key="<%= quiz_session.host_game_sync_key %>">
+  <% if quiz_session.waiting? %>
+    <% participants = quiz_session.quiz_participants %>
+    <div class="lobby-header">
+      <h3>Waiting for players<span class="dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span></h3>
+      <span class="player-count"><strong><%= participants.size %></strong> <%= "player".pluralize(participants.size) %></span>
+    </div>
+    <% if participants.any? %>
+      <ul class="participant-list">
+        <%= render partial: "quiz_sessions/participant", collection: participants,
+              locals: { new_participant: local_assigns[:new_participant] } %>
+      </ul>
+    <% else %>
+      <div class="empty-lobby">
+        <%= render "shared/shape_loader" %>
+        <p class="scribble">it's quiet in here… share the code!</p>
+      </div>
+    <% end %>
+    <%= button_to "Start quiz", start_quiz_session_path(quiz_session),
+          class: class_names("btn btn-lg", "btn-glow": participants.any?), disabled: participants.none? %>
+
+  <% elsif quiz_session.in_progress? && (question = quiz_session.current_question) %>
+    <% revealed = quiz_session.answer_revealed? %>
+    <% votes = revealed ? question.player_answers.group(:question_option_id).count : {} %>
+    <% total_votes = votes.values.sum %>
+    <%# While the question is live, the countdown reveals the answer by itself when time runs out %>
+    <%= tag.div data: (revealed ? {} : { controller: "countdown", countdown_seconds_value: quiz_session.seconds_remaining,
+                                        countdown_total_value: question.time_limit_seconds }) do %>
+      <% if question.final? && !revealed %>
+        <div class="final-banner">🔥 Final question · double points!</div>
+      <% end %>
+
+      <div class="question-meta">
+        <span class="question-number">Question <%= question.position %> <span class="muted">of <%= quiz_session.quiz_questions.size %></span></span>
+        <% if revealed %>
+          <span class="pill pop-in">Answer revealed</span>
+        <% else %>
+          <div class="countdown">
+            <%= render "quiz_sessions/countdown_ring", seconds: quiz_session.seconds_remaining %>
+            <span class="countdown-done scribble" data-countdown-target="closed" hidden>time's up!</span>
+          </div>
+        <% end %>
+      </div>
+      <h2 class="<%= class_names("question-text", "slide-in": !revealed) %>"><%= question.question_text %></h2>
+
+      <ul class="options-grid">
+        <% question.question_options.each_with_index do |option, i| %>
+          <% share = total_votes.zero? ? 0 : votes.fetch(option.id, 0).fdiv(total_votes).round(3) %>
+          <li class="<%= class_names("option", "option-#{option.position}",
+                "pop-in": !revealed,
+                correct: revealed && option.correct?,
+                dimmed: revealed && !option.correct?) %>" style="--i: <%= i %>; --share: <%= share %>">
+            <% if revealed %><span class="option-bar" aria-hidden="true"></span><% end %>
+            <span class="option-text"><%= option.option_text %></span>
+            <% if revealed %>
+              <span class="option-votes" title="<%= pluralize(votes.fetch(option.id, 0), "vote") %>"><%= votes.fetch(option.id, 0) %></span>
+            <% end %>
+            <% if revealed && option.correct? %>
+              <svg class="scribble-circle" viewBox="0 0 400 90" preserveAspectRatio="none" aria-hidden="true">
+                <path pathLength="100" d="M40 14C130-2 330-4 386 28c22 30-40 58-186 58C64 86 6 72 10 46 14 22 84 6 160 4"/>
+              </svg>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+
+      <%= render "quiz_sessions/answer_count", quiz_session: quiz_session %>
+
+      <% if revealed %>
+        <div class="reveal-callouts">
+          <% if (fastest = question.fastest_correct_answer) %>
+            <div class="fastest-finger">
+              <span class="fastest-label">⚡ Fastest finger</span>
+              <%= avatar_for(fastest.quiz_participant, size: 32) %>
+              <strong><%= fastest.quiz_participant.nickname %></strong>
+              <% if (time = response_time(fastest)) %><span class="muted"><%= time %></span><% end %>
+            </div>
+          <% end %>
+          <% streakers = question.player_answers.where("streak >= 3").includes(:quiz_participant).order(streak: :desc) %>
+          <% if streakers.any? %>
+            <div class="streaks">
+              <span class="streaks-label">🔥 On fire</span>
+              <% streakers.each do |answer| %>
+                <span class="streaker"><%= answer.quiz_participant.nickname %> <strong>×<%= answer.streak %></strong></span>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div class="host-actions">
+        <% if revealed %>
+          <%= button_to quiz_session.next_question ? "Next question" : "Show final results",
+                advance_question_quiz_session_path(quiz_session), class: "btn btn-lg" %>
+        <% else %>
+          <%= button_to "Reveal answer", reveal_answer_quiz_session_path(quiz_session), class: "btn btn-lg btn-accent",
+                form: { data: { countdown_target: "autoReveal" } } %>
+        <% end %>
+        <%= button_to "End quiz", finish_quiz_session_path(quiz_session), class: "btn btn-ghost",
+              form: { data: { turbo_confirm: "End the quiz now and show the final results?" } } %>
+      </div>
+    <% end %>
+
+  <% elsif quiz_session.finished? %>
+    <% leaderboard = quiz_session.leaderboard %>
+    <%# Confetti waits for the drumroll and the winner (see the podium timings in application.css) %>
+    <div class="results" data-controller="confetti" data-confetti-count-value="220" data-confetti-delay-value="4800">
+      <h2 class="results-title">Final results</h2>
+      <% if leaderboard.any? %>
+        <%= render "quiz_sessions/podium", entries: leaderboard.first(3) %>
+        <%= render "quiz_sessions/leaderboard", entries: leaderboard.drop(3) %>
+      <% else %>
+        <p class="muted">Nobody played this one.</p>
+      <% end %>
+    </div>
+  <% end %>
+</div>
