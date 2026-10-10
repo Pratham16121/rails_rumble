@@ -9,7 +9,7 @@ class AdvanceQuestion
     next_question = quiz_session.quiz_questions.where('position > ?', current_question.position).order(:position).first
 
     if next_question
-      quiz_session.update!(current_question: next_question)
+      quiz_session.update!(current_question: next_question, answer_revealed: false)
     else
       FinishQuiz.call(quiz_session: quiz_session)
     end

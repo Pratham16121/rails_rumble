@@ -51,21 +51,11 @@ class QuizSessionsController < ApplicationController
   end
 
   def reveal_answer
-    correct_option = @quiz_session.current_question.question_options.find_by(correct: true)
-    
-    ActionCable.server.broadcast("quiz_session_#{@quiz_session.id}", 
-      "<turbo-stream action=\"append\" target=\"participant-container\"><template><script>
-        document.querySelectorAll('.option-btn').forEach(btn => {
-          if (btn.textContent.trim() === '#{ActionController::Base.helpers.j(correct_option.option_text)}') {
-            btn.style.background = 'var(--accent)';
-          } else {
-            btn.style.opacity = '0.5';
-          }
-        });
-      </script></template></turbo-stream>")
-    
+    @quiz_session.update!(answer_revealed: true)
+    broadcast_updates
     redirect_to host_control_quiz_session_path(@quiz_session)
   end
+
 
   def finish
     result = FinishQuiz.call(quiz_session: @quiz_session)

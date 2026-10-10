@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_10_082313) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_10_092413) do
   create_table "player_answers", force: :cascade do |t|
     t.integer "quiz_participant_id", null: false
     t.integer "quiz_question_id", null: false
@@ -73,6 +73,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_10_082313) do
     t.integer "current_question_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "answer_revealed"
     t.index ["join_code"], name: "index_quiz_sessions_on_join_code", unique: true
   end
 

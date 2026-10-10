@@ -24,8 +24,8 @@
     <% if @quiz_session.current_question.question_options.any? %>
       <ul style="list-style-type: none; padding: 0;">
         <% @quiz_session.current_question.question_options.order(:position).each do |opt| %>
-          <li style="padding: 0.5rem; background: <%= opt.correct ? 'var(--accent)' : '#334155' %>; margin-bottom: 0.5rem; border-radius: 4px;">
-            <%= opt.option_text %> <%= "(Correct)" if opt.correct %>
+          <li style="padding: 0.5rem; background: <%= @quiz_session.answer_revealed && opt.correct ? 'var(--accent)' : '#334155' %>; margin-bottom: 0.5rem; border-radius: 4px;">
+            <%= opt.option_text %> <%= "(Correct)" if @quiz_session.answer_revealed && opt.correct %>
           </li>
         <% end %>
       </ul>
